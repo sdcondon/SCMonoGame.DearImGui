@@ -1,6 +1,6 @@
 # SCMonoGameUtilities.DearImGui
 
-Just my adaptation of the MonoGame ImGui renderer and examples found in the ImGuiNET project.
+Just my adaptation of the MonoGame ImGui renderer and examples found in the [ImGuiNET](https://github.com/ImGuiNET/ImGui.NET) monogame demo project.
 
 Significant changes made to the renderer from that project (which leaves a lot to be desired). Most notably:
 
