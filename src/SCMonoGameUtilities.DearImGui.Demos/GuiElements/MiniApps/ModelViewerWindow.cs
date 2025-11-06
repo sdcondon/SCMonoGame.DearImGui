@@ -6,7 +6,7 @@ using static ImGuiNET.ImGui;
 
 namespace SCMonoGameUtilities.DearImGui.Demos.GuiElements.MiniApps;
 
-// Demo of a window thhat includes a rendered 3D image.
+// Demo of a window that includes a rendered 3D image.
 class ModelViewerWindow(
     GraphicsDevice graphicsDevice,
     ContentManager contentManager,

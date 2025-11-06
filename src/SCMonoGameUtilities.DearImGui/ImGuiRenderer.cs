@@ -267,12 +267,12 @@ public sealed class ImGuiRenderer : IDisposable
         AddMouseButtonEvent(2, _lastMouseState.MiddleButton, mouseState.MiddleButton);
         AddMouseButtonEvent(3, _lastMouseState.XButton1, mouseState.XButton1);
         AddMouseButtonEvent(4, _lastMouseState.XButton2, mouseState.XButton2);
-        _lastMouseState = mouseState;
+        _lastMouseState = mouseState; // todo-performance: create a struct for current & last state and use refs - then just swap the refs here rather than copy.
 
         var keyboardState = Keyboard.GetState();
         AddKeyEvents(_lastKeyboardState, keyboardState, false);
         AddKeyEvents(keyboardState, _lastKeyboardState, true);
-        _lastKeyboardState = keyboardState;
+        _lastKeyboardState = keyboardState; // todo-performance: create a struct for current & last state and use refs - then just swap the refs here rather than copy.
 
         void AddMousePosEvent()
         {
