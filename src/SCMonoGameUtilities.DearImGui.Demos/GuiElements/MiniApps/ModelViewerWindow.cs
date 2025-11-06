@@ -8,9 +8,9 @@ namespace SCMonoGameUtilities.DearImGui.Demos.GuiElements.MiniApps;
 
 // Demo of a window thhat includes a rendered 3D image.
 class ModelViewerWindow(
-    ImGuiRenderer imGuiRenderer,
     GraphicsDevice graphicsDevice,
     ContentManager contentManager,
+    ImGuiRenderer imGuiRenderer,
     string modelAssetName,
     bool isVisible = false)
 {

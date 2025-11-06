@@ -70,7 +70,7 @@ public class Program : Game
         // menu item objects that include what is essentially a callback to handle being selected and unselected.
         displaySettingsWindow = new(Window, graphicsDeviceManager);
         modelAndControls = new(GraphicsDevice, Content, "Models/suzanne");
-        modelViewerWindow = new(guiRenderer, GraphicsDevice, Content, "Models/suzanne");
+        modelViewerWindow = new(GraphicsDevice, Content, guiRenderer, "Models/suzanne");
         demoWindow = new(this)
         {
             ExamplesMenuSections =
