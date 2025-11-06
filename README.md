@@ -1,8 +1,7 @@
 # SCMonoGameUtilities.DearImGui
 
 Just my adaptation of the MonoGame ImGui renderer and examples found in the [ImGuiNET](https://github.com/ImGuiNET/ImGui.NET) monogame demo project.
-Mostly for personal use, but making it public because others might find some value here - especially in the rewritten and expanded demos, many of
-which don't feature in the ImGuiNET demo project.
+Mostly for personal use, but making it public because others might find some value here - especially in the extensive demo project.
 
 Changes from MonoGame demo proj in ImGuiNET:
 
@@ -17,5 +16,7 @@ Changes from MonoGame demo proj in ImGuiNET:
   * Key up/down event code rewritten, because enumerating a fairly large enumeration in each update is slightly 
     insane, when instead we can just use MonoGame's GetPressedKeys stuff - which does bitwise operations to look
     for pressed keys.
-* Demos expanded significantly (the vast majority of the native ones are here now, plus one or two others), and
-  most re-written for better encapsulation of the individual demos.
+* Extensive demos. Started by rewriting those found 
+  [here](https://github.com/tsMezotic/MonoGame.ImGuiNet/blob/main/Monogame.ImGuiNetSamples/Game1.cs) (themselves ported from
+  the native examples) for better encapsulation and general code cleanliness, and added a several more - some others ported from
+  the native examples, and some (an example display settings window, rendering a 3D model to a window,..) from scratch.
