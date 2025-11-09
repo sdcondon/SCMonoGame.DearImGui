@@ -104,30 +104,29 @@ public sealed class ImGuiRenderer : IDisposable
     /// </summary>
     public void BuildFontAtlas()
     {
-        // might not be needed - if its fine to access the IO struct of a context that isn't active? probably is?
+        // Might not be needed - if its fine to access the IO struct of a context that isn't active? probably is?
         ImGui.SetCurrentContext(_imGuiContext);
 
-        // If the font atlas has already been built, unregister it first (which also disposes the texture).
+        // If the font atlas has already been built, unregister the registered texture first (which also disposes the XNA texture object).
         if (_fontTextureId.HasValue)
         {
             UnregisterTexture(_fontTextureId.Value);
         }
 
-        // Get font texture data from ImGui and copy it to a managed array
-        _imGuiIO.Fonts.GetTexDataAsRGBA32(out nint pixelData, out int width, out int height, out int bytesPerPixel);
-        var pixels = new byte[width * height * bytesPerPixel];
-        Marshal.Copy(pixelData, pixels, 0, pixels.Length);
+        // Get font texture data from ImGui and copy it to an XNA texture object:
+        _imGuiIO.Fonts.GetTexDataAsRGBA32(out nint pixelsPointer, out int width, out int height, out int bytesPerPixel);
+        byte[] pixels = new byte[width * height * bytesPerPixel];
+        Marshal.Copy(pixelsPointer, pixels, 0, pixels.Length);
+        _imGuiIO.Fonts.ClearTexData(); // Clear ImGui texdata once we're done with it
 
-        // Create and register the texture as an XNA texture
-        var tex2d = new Texture2D(_graphicsDevice, width, height, false, SurfaceFormat.Color);
+        Texture2D tex2d = new(_graphicsDevice, width, height, false, SurfaceFormat.Color);
         tex2d.SetData(pixels);
 
-        // Bind the new texture to an ImGui-friendly id
+        // Register the texture for use (so that our RenderCommandLists method can recognise it
+        // and bind the font atlas texture in response), then tell ImGui to use the registered
+        // ID for its commands to render text: 
         _fontTextureId = RegisterTexture(tex2d);
-
-        // Let ImGui know where to find the texture
         _imGuiIO.Fonts.SetTexID(_fontTextureId.Value);
-        _imGuiIO.Fonts.ClearTexData(); // Clears CPU side texture data
     }
 
     /// <summary>
@@ -245,7 +244,7 @@ public sealed class ImGuiRenderer : IDisposable
     {
         // TODO: do we need any kind of synchronisation here? when/how might this event be raised?
         // We *could* (if needed) store it in a (thread-safe) queue for consumption during the next BeginUpdate()?
-        // Almost certainly fine as-is..
+        // Almost certainly fine as-is, though..
         if (eventArgs.Character == '\t') return;
         ImGui.SetCurrentContext(_imGuiContext);
         _imGuiIO.AddInputCharacter(eventArgs.Character);
