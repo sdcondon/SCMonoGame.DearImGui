@@ -17,24 +17,21 @@ class AutoResizeWindow(bool isOpen = false)
     {
         if (!IsOpen) return;
 
-        if (!Begin("Concept Demo: Automatic Resizing", ref IsOpen, ImGuiWindowFlags.AlwaysAutoResize))
+        if (Begin("Concept Demo: Automatic Resizing", ref IsOpen, ImGuiWindowFlags.AlwaysAutoResize))
         {
-            End();
-            return;
-        }
+            TextUnformatted(
+                "This window will resize to the size of its content on every frame."
+                + "\nNote that you probably don't want to query the window size to"
+                + "\noutput your content because that would create a feedback loop.");
 
-        TextUnformatted(
-            "This window will resize to the size of its content on every frame."
-            + "\nNote that you probably don't want to query the window size to"
-            + "\noutput your content because that would create a feedback loop.");
+            SliderInt("Number of lines", ref lineCount, 1, 20);
 
-        SliderInt("Number of lines", ref lineCount, 1, 20);
-        
-        for (int i = 0; i < lineCount; i++)
-        {
-            // NB: Pad with space to extend size horizontally
-            var padding = new string(' ', i * 4);
-            Text($"{padding}This is line {i}");
+            for (int i = 0; i < lineCount; i++)
+            {
+                // NB: Pad with space to extend size horizontally
+                var padding = new string(' ', i * 4);
+                Text($"{padding}This is line {i}");
+            }
         }
 
         End();

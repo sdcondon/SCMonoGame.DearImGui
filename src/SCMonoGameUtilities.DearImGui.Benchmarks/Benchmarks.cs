@@ -12,22 +12,13 @@ public class ImGuiRendererBenchmarks
     static readonly ProductionGame productionGame = new();
 
     [Benchmark()]
-    public void FromImGuiNET()
-    {
-        fromImGuiNetGame.RunOneFrame();
-    }
+    public void FromImGuiNET() => fromImGuiNetGame.RunOneFrame();
 
     [Benchmark()]
-    public void WithIOStateIndirection()
-    {
-        withIOStateIndirectionGame.RunOneFrame();
-    }
+    public void WithIOStateIndirection() => withIOStateIndirectionGame.RunOneFrame();
 
     [Benchmark(Baseline = true)]
-    public void Production()
-    {
-        productionGame.RunOneFrame();
-    }
+    public void Production() => productionGame.RunOneFrame();
 
     private class ProductionGame : Game
     {

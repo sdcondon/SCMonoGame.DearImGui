@@ -86,6 +86,7 @@ class ConstrainedResizeWindow(bool isOpen = false)
                     Text($"{new string(' ', i * 4)}Hello, sailor! Making this line long enough for the example.");
             }
         }
+
         End();
     }
 

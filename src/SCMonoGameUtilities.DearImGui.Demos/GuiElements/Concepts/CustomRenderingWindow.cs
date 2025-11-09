@@ -21,20 +21,17 @@ class CustomRenderingWindow(bool isOpen = false)
     {
         if (!IsOpen) return;
 
-        if (!Begin("Concept Demo: Custom Rendering", ref IsOpen))
+        if (Begin("Concept Demo: Custom Rendering", ref IsOpen))
         {
-            End();
-            return;
-        }
+            if (BeginTabBar("##TabBar"))
+            {
+                primitivesTab.Update();
+                canvasTab.Update();
+                bgFgDrawListsTab.Update();
+                UpdateDrawChannelTab();
 
-        if (BeginTabBar("##TabBar"))
-        {
-            primitivesTab.Update();
-            canvasTab.Update();
-            bgFgDrawListsTab.Update();
-            UpdateDrawChannelTab();
-
-            EndTabBar();
+                EndTabBar();
+            }
         }
 
         End();
