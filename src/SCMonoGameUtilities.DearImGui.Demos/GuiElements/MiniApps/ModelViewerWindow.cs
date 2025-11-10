@@ -13,13 +13,13 @@ class ModelViewerWindow(
     ContentManager contentManager,
     ImGuiRenderer imGuiRenderer,
     string modelAssetName,
-    bool isVisible = false)
+    bool isOpen = false)
 {
-    public bool IsVisible = isVisible;
+    public bool IsOpen = isOpen;
 
     private Model model;
-    private Matrix modelWorldTransform = Matrix.CreateRotationX(-1.5f);
-    private float modelAspectRatio;
+    private Matrix modelWorld = Matrix.CreateRotationX(-1.5f);
+    private Matrix modelProjection;
     private RenderTarget2D modelRenderTarget;
     private nint modelTextureId;
 
@@ -55,36 +55,35 @@ class ModelViewerWindow(
 
     public void Update()
     {
-        if (!IsVisible) return;
+        if (!IsOpen) return;
 
-        if (Begin("Example: Model Viewer", ref IsVisible))
+        if (Begin("Example: Model Viewer", ref IsOpen))
         {
             System.Numerics.Vector2 imageSize = GetContentRegionAvail();
             if (imageSize.X > 0 && imageSize.Y > 0)
             {
-                modelAspectRatio = imageSize.X / imageSize.Y;
-
                 var cursorPos = GetCursorPos();
 
                 InvisibleButton("model", imageSize, ImGuiButtonFlags.MouseButtonLeft);
                 if (IsItemActive() && IsMouseDragging(ImGuiMouseButton.Left))
                 {
                     var io = GetIO();
-                    modelWorldTransform *= Matrix.CreateRotationY(0.01f * io.MouseDelta.X);
-                    modelWorldTransform *= Matrix.CreateRotationX(0.01f * io.MouseDelta.Y);
+                    modelWorld *= Matrix.CreateRotationY(0.01f * io.MouseDelta.X) * Matrix.CreateRotationX(0.01f * io.MouseDelta.Y);
                 }
 
                 SetCursorPos(cursorPos);
                 Image(modelTextureId, imageSize);
+
+                modelProjection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), imageSize.X / imageSize.Y, 0.1f, 100.0f);
             }
         }
 
         End();
     }
 
-    public void DrawModel()
+    public void DrawModelToTexture()
     {
-        if (!IsVisible) return;
+        if (!IsOpen) return;
 
         var priorRenderTargets = graphicsDevice.GetRenderTargets();
 
@@ -95,8 +94,8 @@ class ModelViewerWindow(
         {
             foreach (BasicEffect effect in mesh.Effects.Cast<BasicEffect>())
             {
-                effect.World = modelWorldTransform;
-                effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), modelAspectRatio, 0.1f, 100.0f);
+                effect.World = modelWorld;
+                effect.Projection = modelProjection;
             }
 
             mesh.Draw();

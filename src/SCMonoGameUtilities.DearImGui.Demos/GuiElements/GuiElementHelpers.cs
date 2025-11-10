@@ -1,7 +1,5 @@
 ﻿using ImGuiNET;
 using System;
-using System.Collections;
-using System.Collections.Generic;
 
 namespace SCMonoGameUtilities.DearImGui.Demos.GuiElements;
 
@@ -139,7 +137,7 @@ static class GuiElementHelpers
 
     public static void PushStyleCompact()
     {
-        // Make the UI compact because there are so many fields
+        // Make the UI compact - useful when we have a lot of fields to display
         ImGuiStylePtr style = ImGui.GetStyle();
         ImGui.PushStyleVarY(ImGuiStyleVar.FramePadding, (float)(int)(style.FramePadding.Y * 0.60f));
         ImGui.PushStyleVarY(ImGuiStyleVar.ItemSpacing, (float)(int)(style.ItemSpacing.Y * 0.60f));

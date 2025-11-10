@@ -26,7 +26,7 @@ class DisplaySettingsWindow
         this.window = window;
         this.graphicsDeviceManager = graphicsDeviceManager;
         this.displayModes = [.. graphicsDeviceManager.GraphicsDevice.Adapter.SupportedDisplayModes];
-        this.displayModeDescriptions = [.. displayModes.Select(a => $"{a.Width}x{a.Height}")];
+        this.displayModeDescriptions = [.. displayModes.Select(a => $"{a.Width}x{a.Height} ({a.AspectRatio:F2}:1)")];
         this.displayModeIndex = Array.IndexOf(displayModes, graphicsDeviceManager.GraphicsDevice.Adapter.CurrentDisplayMode);
     }
 

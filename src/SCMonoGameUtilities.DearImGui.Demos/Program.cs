@@ -27,7 +27,7 @@ public class Program : Game
     private readonly DisplaySettingsWindow displaySettingsWindow;
     private readonly ModelAndControls modelAndControls;
     private readonly ModelViewerWindow modelViewerWindow;
-    private readonly LogWindow logWindow = new(maxEntries: 1000);
+    private readonly LogWindow logWindow = new(new ExampleLogWindowContentSource(), maxEntryCount: 1000);
     private readonly ConsoleWindow consoleWindow = new();
     private readonly DocumentsWindow documentsWindow = new(new ExampleDocumentStore());
     private readonly AssetsBrowserWindow assetsBrowserWindow = new();
@@ -88,7 +88,7 @@ public class Program : Game
                 {
                     new("Log", () => logWindow.IsOpen),
                     new("Console", () => consoleWindow.IsOpen),
-                    new("Model viewer", () => modelViewerWindow.IsVisible),
+                    new("Model viewer", () => modelViewerWindow.IsOpen),
                     new("Model and controls", () => modelAndControls.IsVisible),
                     new("Assets browser", () => assetsBrowserWindow.IsOpen),
                     new("Property editor", () => propertyEditorWindow.IsOpen),
@@ -211,7 +211,7 @@ public class Program : Game
 
         // This one goes right at the start because it changes the render target (it draws to a texture), which
         // also clears graphics device state - so putting it after anything else would overwrite anything they've done:
-        modelViewerWindow.DrawModel(); // Draw the model of the model viewer to a texture
+        modelViewerWindow.DrawModelToTexture();
 
         GraphicsDevice.Clear(Color.CornflowerBlue); // Clear the graphics device and give ourselves a nice blue background
         modelAndControls.DrawModel(); // Draw the model part of the "model and controls" demo

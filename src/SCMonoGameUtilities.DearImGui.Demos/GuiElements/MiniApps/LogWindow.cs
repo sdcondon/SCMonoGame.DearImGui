@@ -1,99 +1,78 @@
 ﻿using ImGuiNET;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using static ImGuiNET.ImGui;
 
 namespace SCMonoGameUtilities.DearImGui.Demos.GuiElements.MiniApps;
 
-// TODO: separation of concerns - separate out the log itself and inject it - in a real app log messages are
-// *never* going to come from someone clicking a button on the log window, which limits the value of this demo.
-// perhaps include max entries to consume per update as an option?
-// perhaps allow logging of rich objects (not just strings) - make generic with optional (otherwise just ToString) formatter?
-class LogWindow(int maxEntries, bool isOpen = false)
+class LogWindow(ExampleLogWindowContentSource contentSource, int maxEntryCount, bool isOpen = false)
 {
     public bool IsOpen = isOpen;
 
+    // This window is for demo purposes only, and wouldn't feature in a real app:
+    private readonly LogGeneratorWindow logGeneratorWindow = new();
+
+    private readonly ExampleLogWindowContentSource contentSource = contentSource;
+    private readonly RingBuffer<string> content = new(maxEntryCount);
     private readonly unsafe ImGuiTextFilterPtr filter = new(ImGuiNative.ImGuiTextFilter_ImGuiTextFilter(null));
-    private readonly RingBuffer<string> content = new(maxEntries);
 
     private bool autoScroll = true;
-    private bool showDebugOptions = false;
 
     ~LogWindow() => filter.Destroy();
-
-    public void ClearContent() => content.Clear();
-
-    public void AppendContent(string text) => content.Add(text);
 
     public void Update()
     {
         if (!IsOpen) return;
 
-        SetNextWindowSize(new Vector2(500, 400), ImGuiCond.FirstUseEver);
+        // Again, this window is for demo purposes only, and wouldn't exist in a real app:
+        logGeneratorWindow.Update();
 
+        // In a real app, perhaps consider a maximum number of messages to consume per update
+        // step. Just in case something goes wrong in your app to the extent that lots of messages
+        // are constantly generated (on some thread other than the main game one) - probably don't
+        // want to compound the issue by having the log window try too hard to keep up.
+        while (contentSource.TryDequeueMessage(out var message))
+        {
+            content.Add(message);
+        }
+
+        SetNextWindowSize(new Vector2(500, 400), ImGuiCond.FirstUseEver);
         if (Begin("Example: Log", ref IsOpen))
         {
-            UpdateTopBar(out var copyContentToClipboard);
-            UpdateDebugBar();
-            Separator();
+            UpdateContextMenu(out var copyContentToClipboard);
             UpdateContentPane(copyContentToClipboard);
         }
 
         End();
     }
 
-    private void UpdateTopBar(out bool copyContentToClipboard)
+    private void UpdateContextMenu(out bool copyContentToClipboard)
     {
-        if (BeginPopup("Options"))
+        copyContentToClipboard = false;
+        if (BeginPopupContextWindow())
         {
-            Checkbox("Auto-scroll", ref autoScroll);
-            Checkbox("Show Debug Options", ref showDebugOptions);
+            MenuItem("Auto-scroll", null, ref autoScroll);
+            if (Selectable("Clear")) content.Clear();
+            if (Selectable("Copy to clipboard")) copyContentToClipboard = true;
+
+            Separator();
+            filter.Draw();
+
+            // Once again, demo purposes only, and wouldn't feature in a real app:
+            Separator();
+            MenuItem("Show Log Generator Window", null, ref logGeneratorWindow.IsOpen);
+
             EndPopup();
-        }
-
-        if (Button("Options"))
-        {
-            OpenPopup("Options");
-        }
-
-        SameLine();
-
-        if (Button("Clear"))
-        {
-            ClearContent();
-        }
-
-        SameLine();
-        copyContentToClipboard = Button("Copy");
-        SameLine();
-        Text("Filter:");
-        SameLine();
-        filter.Draw("##Filter", -float.Epsilon);
-    }
-
-    private void UpdateDebugBar()
-    {
-        if (!showDebugOptions) return;
-
-        Separator();
-
-        if (Button("[Debug] Add 5 entries"))
-        {
-            string[] words = ["Bumfuzzled", "Cattywampus", "Snickersnee", "Abibliophobia", "Absquatulate"];
-            foreach (string str in words)
-            {
-                AppendContent("Frame " + GetFrameCount() + " [info] Hello, current time is " + GetTime() + " here's a word: " + str);
-            }
         }
     }
 
     private void UpdateContentPane(bool copyContentToClipboard)
     {
-        BeginChild("content", Vector2.Zero, ImGuiChildFlags.None, ImGuiWindowFlags.HorizontalScrollbar);
-
         if (copyContentToClipboard)
         {
             LogToClipboard();
@@ -102,7 +81,16 @@ class LogWindow(int maxEntries, bool isOpen = false)
         PushStyleVar(ImGuiStyleVar.ItemSpacing, Vector2.Zero);
         if (filter.IsActive())
         {
-            foreach (string str in content.Where(str => filter.PassFilter(str)))
+            TextUnformatted($"Entries matching active filter:");
+
+            var filteredContent = content.Where(str => filter.PassFilter(str));
+
+            if (!filteredContent.Any())
+            {
+                BulletText("No matches!");
+            }
+
+            foreach (string str in filteredContent)
             {
                 BulletText(str);
             }
@@ -120,8 +108,6 @@ class LogWindow(int maxEntries, bool isOpen = false)
         {
             SetScrollHereY(1.0f);
         }
-
-        EndChild();
     }
 
     /// <summary>
@@ -182,14 +168,99 @@ class LogWindow(int maxEntries, bool isOpen = false)
     }
 }
 
-class ExampleLogSourceWindow()
+// Example source of content for a log window, separate from the window itself for separation of concerns.
+// A real app would probably want to do the same thing, though the implementation might look very different.
+// This particular implementation just grabs trace (including debug) messages.
+// TODO: Should probably demo (structured?) logging too - e.g. MS Logging ILogger, Serilog LogSink
+class ExampleLogWindowContentSource
 {
+    private readonly ConcurrentQueue<string> messageQueue = new();
 
+    public ExampleLogWindowContentSource()
+    {
+        // In general, its a bad idea to include such a high impact side-effect in a constructor
+        // (and at the very least we should make the type disposable so that it can be unhooked),
+        // but its fine for this demo app. For now.. Hmm, I'll probably fix this at some point.
+        Trace.Listeners.Add(new QueuingTraceListener(messageQueue));
+    }
+
+    public bool TryDequeueMessage(out string message) => messageQueue.TryDequeue(out message);
+
+    // This is obviously an absolutely minimal trace listener. By overriding TraceListener's other methods,
+    // a more sophisticated implementation could use a queue of complex objects instead of strings - objects
+    // that the log window could apply pretty formatting to when displaying them. We could, for example,
+    // store the category separate from the message. And/or we could handle the object-accepting methods
+    // in a more sophisticated manner than just calling ToString(), as the default method implementations do.
+    private class QueuingTraceListener(ConcurrentQueue<string> messageQueue) : TraceListener
+    {
+        public override void Write(string message) => messageQueue.Enqueue(message);
+
+        public override void WriteLine(string message) => messageQueue.Enqueue(message);
+    }
 }
 
-// example log class. in a real app this might be a type implementing a "sink"-type interface
-// from a well-known logging framework. E.g. Serilog's ILogSink, or Microsoft.Extensions.Logging's ILogger.
-class LogWindowLogger
+// Window that offers buttons to write Debug and Trace messages, for demo purposes. Obviously wouldn't feature
+// in a real app.
+//
+// NB: There's no dependency on the logging window or content source here - messages are going via  dotnet's
+// tracing infrastructure.
+class LogGeneratorWindow(bool isOpen = false)
 {
+    public bool IsOpen = isOpen;
 
+    private const string TraceMessageCategory = "Log Source Window - Trace";
+    private const string DebugMessageCategory = "Log Source Window - Debug";
+    private static readonly string[] randomWords = ["Bumfuzzled", "Cattywampus", "Snickersnee", "Abibliophobia", "Absquatulate"];
+
+    public void Update()
+    {
+        if (!IsOpen) return;
+
+        if (Begin("Example: Log Generator", ref IsOpen))
+        {
+            if (Button("Debug line"))
+            {
+                Debug.WriteLine(MakeMessage());
+            }
+
+            if (Button("Debug line with category"))
+            {
+                Debug.WriteLine(MakeMessage(), DebugMessageCategory);
+            }
+
+            if (Button("Trace line"))
+            {
+                Debug.WriteLine(MakeMessage());
+            }
+
+            if (Button("Trace line with category"))
+            {
+                Trace.WriteLine(MakeMessage(), TraceMessageCategory);
+            }
+
+            if (Button("Trace event: info"))
+            {
+                Trace.TraceInformation(MakeMessage());
+            }
+
+            if (Button("Trace event: warning"))
+            {
+                Trace.TraceWarning(MakeMessage());
+            }
+
+            if (Button("Trace event: error"))
+            {
+                Trace.TraceError(MakeMessage());
+            }
+
+            // TODO: Add (structured?) log message
+        }
+
+        End();
+    }
+
+    private static string MakeMessage()
+    {
+        return $"Hello, elapsed game time {GetTime():F2}s, here's a word: {randomWords[Random.Shared.Next(randomWords.Length)]}";
+    }
 }
