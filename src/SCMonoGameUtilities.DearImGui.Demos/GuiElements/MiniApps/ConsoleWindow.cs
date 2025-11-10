@@ -37,65 +37,17 @@ class ConsoleWindow(bool isOpen = false)
 
         if (Begin("Example: Console", ref IsOpen))
         {
-            UpdateContextMenu();
-            UpdateTopBar(out var copyToClipboard);
             UpdateDebugBar();
-
-            Separator();
-
-            UpdateOutputPane(copyToClipboard);
+            UpdateOutputPane();
             UpdateInputTextBox();
         }
 
         End();
     }
 
-    private void UpdateContextMenu()
-    {
-        if (BeginPopupContextItem())
-        {
-            if (MenuItem("Close Console"))
-            {
-                IsOpen = false;
-            }
-            EndPopup();
-        }
-    }
-
-    private void UpdateTopBar(out bool copyToClipboard)
-    {
-        if (BeginPopup("Options"))
-        {
-            Checkbox("Auto-scroll", ref autoScroll);
-            Checkbox("Show debug options", ref showDebugOptions);
-            EndPopup();
-        }
-
-        if (Button("Options"))
-        {
-            OpenPopup("Options");
-        }
-
-        SameLine();
-
-        if (Button("Clear"))
-        {
-            ClearContent();
-        }
-
-        SameLine();
-        copyToClipboard = Button("Copy");
-        SameLine();
-        Text("Filter:");
-        SameLine();
-        filter.Draw("##Filter", -float.Epsilon);
-    }
-
     private void UpdateDebugBar()
     {
         if (!showDebugOptions) return;
-
-        Separator();
 
         if (Button("Add Debug Text"))
         {
@@ -110,19 +62,28 @@ class ConsoleWindow(bool isOpen = false)
         {
             AppendContent("[error] something went wrong");
         }
+
+        Separator();
     }
 
-    private void UpdateOutputPane(bool copyToClipboard)
+    private void UpdateOutputPane()
     {
         float footerHeightToReserve = GetStyle().ItemSpacing.Y + GetFrameHeightWithSpacing();
         BeginChild("ScrollingRegion", new(0, -footerHeightToReserve), ImGuiChildFlags.None, ImGuiWindowFlags.HorizontalScrollbar);
 
+        bool copyToClipboard = false;
         if (BeginPopupContextWindow())
         {
-            if (Selectable("Clear"))
-            {
-                ClearContent();
-            }
+            MenuItem("Auto-scroll", null, ref autoScroll);
+            if (Selectable("Clear")) ClearContent();
+            if (Selectable("Copy to clipboard")) copyToClipboard = true;
+
+            Separator();
+            filter.Draw();
+
+            Separator();
+            MenuItem("Show debug options", null, ref showDebugOptions);
+
             EndPopup();
         }
 

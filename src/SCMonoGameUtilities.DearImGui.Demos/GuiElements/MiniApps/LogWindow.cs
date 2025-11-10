@@ -15,7 +15,7 @@ class LogWindow(ExampleLogWindowContentSource contentSource, int maxEntryCount, 
     public bool IsOpen = isOpen;
 
     // This window is for demo purposes only, and wouldn't feature in a real app:
-    private readonly LogGeneratorWindow logGeneratorWindow = new();
+    private readonly LogGeneratorWindow logGeneratorWindow = new(isOpen: true);
 
     private readonly ExampleLogWindowContentSource contentSource = contentSource;
     private readonly RingBuffer<string> content = new(maxEntryCount);
