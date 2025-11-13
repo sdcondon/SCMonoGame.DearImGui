@@ -28,7 +28,7 @@ jobs:
 
     - name: Build
       run: dotnet build -c Release -p:Version=${{ steps.getPackageVersion.outputs.VERSION }}
-      working-directory: ./src/SCMonoGameUtilities.DearImGui
+      working-directory: ./src/SCMonoGame.DearImGui
 
     - name: Push packages
       run: nuget push "**/*.nupkg" -Source https://nuget.pkg.github.com/${{ github.repository_owner }}
