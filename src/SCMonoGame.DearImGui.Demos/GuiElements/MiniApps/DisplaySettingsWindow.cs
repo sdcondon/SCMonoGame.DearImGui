@@ -16,8 +16,8 @@ class DisplaySettingsWindow
     private readonly DisplayMode[] displayModes;
     private readonly string[] displayModeDescriptions;
 
-    private int displayModeIndex = 0;
-    private bool isFullScreen = true;
+    private int displayModeIndex;
+    private bool isFullScreen;
 
     public DisplaySettingsWindow(GameWindow window, GraphicsDeviceManager graphicsDeviceManager, bool isOpen = false)
     {
@@ -27,7 +27,9 @@ class DisplaySettingsWindow
         this.graphicsDeviceManager = graphicsDeviceManager;
         this.displayModes = [.. graphicsDeviceManager.GraphicsDevice.Adapter.SupportedDisplayModes];
         this.displayModeDescriptions = [.. displayModes.Select(a => $"{a.Width}x{a.Height} ({a.AspectRatio:F2}:1)")];
+
         this.displayModeIndex = Array.IndexOf(displayModes, graphicsDeviceManager.GraphicsDevice.Adapter.CurrentDisplayMode);
+        this.isFullScreen = graphicsDeviceManager.IsFullScreen;
     }
 
     public void Update()
