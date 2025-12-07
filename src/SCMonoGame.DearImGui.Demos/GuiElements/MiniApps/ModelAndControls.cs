@@ -41,7 +41,7 @@ class ModelAndControls(GraphicsDevice graphicsDevice, ContentManager contentMana
 
         System.Numerics.Vector2 windowPosition = new(graphicsDevice.Viewport.Width / 2f, graphicsDevice.Viewport.Height * 3f / 4f);
 
-        SetNextWindowPos(windowPosition);
+        SetNextWindowPos(windowPosition, ImGuiCond.Always, new(.5f, .5f));
         SetNextWindowBgAlpha(0.35f);
 
         ImGuiWindowFlags windowFlags = ImGuiWindowFlags.NoDecoration
