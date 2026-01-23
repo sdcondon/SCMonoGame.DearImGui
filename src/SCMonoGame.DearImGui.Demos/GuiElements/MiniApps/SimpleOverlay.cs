@@ -17,25 +17,30 @@ class SimpleOverlay(bool isVisible = false)
         // NB: we use workarea not full viewport, so that we respect
         // any present menu bar etc when positioning.
         System.Numerics.Vector2 windowPosition = new();
+        System.Numerics.Vector2 windowPivot = new();
         if (corner == Corner.TopLeft || corner == Corner.BottomLeft)
         {
             windowPosition.X = GetMainViewport().WorkPos.X + 10.0f;
+            windowPivot.X = 0f;
         }
         else
         {
-            windowPosition.X = GetMainViewport().WorkSize.X - 250.0f;
+            windowPosition.X = GetMainViewport().WorkSize.X - 10.0f;
+            windowPivot.X = 1f;
         }
 
         if (corner == Corner.TopLeft || corner == Corner.TopRight)
         {
             windowPosition.Y = GetMainViewport().WorkPos.Y + 10.0f;
+            windowPivot.Y = 0f;
         }
         else
         {
-            windowPosition.Y = GetMainViewport().WorkSize.Y - 100.0f;
+            windowPosition.Y = GetMainViewport().WorkSize.Y - 10f;
+            windowPivot.Y = 1f;
         }
 
-        SetNextWindowPos(windowPosition);
+        SetNextWindowPos(windowPosition, ImGuiCond.Always, windowPivot);
         SetNextWindowBgAlpha(0.35f);
 
         ImGuiWindowFlags windowFlags = ImGuiWindowFlags.NoDecoration
