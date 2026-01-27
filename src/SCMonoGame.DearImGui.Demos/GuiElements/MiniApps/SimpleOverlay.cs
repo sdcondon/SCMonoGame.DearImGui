@@ -6,6 +6,8 @@ namespace SCMonoGame.DearImGui.Demos.GuiElements.MiniApps;
 
 class SimpleOverlay(bool isVisible = false)
 {
+    private static Vector2 Margin = new(10f, 10f);
+
     public bool IsVisible = isVisible;
 
     private Corner corner = 0;
@@ -20,23 +22,23 @@ class SimpleOverlay(bool isVisible = false)
         System.Numerics.Vector2 windowPivot = new();
         if (corner == Corner.TopLeft || corner == Corner.BottomLeft)
         {
-            windowPosition.X = GetMainViewport().WorkPos.X + 10.0f;
+            windowPosition.X = GetMainViewport().WorkPos.X + Margin.X;
             windowPivot.X = 0f;
         }
         else
         {
-            windowPosition.X = GetMainViewport().WorkSize.X - 10.0f;
+            windowPosition.X = GetMainViewport().WorkSize.X - Margin.X;
             windowPivot.X = 1f;
         }
 
         if (corner == Corner.TopLeft || corner == Corner.TopRight)
         {
-            windowPosition.Y = GetMainViewport().WorkPos.Y + 10.0f;
+            windowPosition.Y = GetMainViewport().WorkPos.Y + Margin.Y;
             windowPivot.Y = 0f;
         }
         else
         {
-            windowPosition.Y = GetMainViewport().WorkSize.Y - 10f;
+            windowPosition.Y = GetMainViewport().WorkSize.Y - Margin.Y;
             windowPivot.Y = 1f;
         }
 
