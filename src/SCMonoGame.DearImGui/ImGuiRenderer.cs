@@ -48,7 +48,8 @@ public sealed class ImGuiRenderer : IDisposable
     /// Initialises a new instance of the <see cref="ImGuiRenderer"/> class.
     /// </summary>
     /// <param name="game">The <see cref="Game"/> that this renderer is used by.</param>
-    public ImGuiRenderer(Game game)
+    /// <param name="iniFilePath">The name of the ini file to use - or null to use no ini file (meaning no GUI state persistence will occur).</param>
+    public ImGuiRenderer(Game game, string? iniFilePath = null)
     {
         // Setup context
         _game = game ?? throw new ArgumentNullException(nameof(game));
@@ -57,10 +58,17 @@ public sealed class ImGuiRenderer : IDisposable
         ImGui.SetCurrentContext(_imGuiContext);
         _imGuiIO = ImGui.GetIO();
 
-        // Unset ini file - default to no UI state persistence
+        // Nullify ini file immediately, so that we never crash by
+        // attempting to FreeHGlobal the initial value in SetIniFilePath.
         unsafe
         {
-            _imGuiIO.NativePtr->IniFilename = null;
+            ImGui.GetIO().NativePtr->IniFilename = null;
+        }
+
+        // Now set the ini file path if it's been specified.
+        if (iniFilePath != null)
+        {
+            ImGui.GetIO().SetIniFilePath(iniFilePath);
         }
 
         // Setup graphics
