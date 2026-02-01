@@ -62,13 +62,13 @@ public sealed class ImGuiRenderer : IDisposable
         // attempting to FreeHGlobal the initial value in SetIniFilePath.
         unsafe
         {
-            ImGui.GetIO().NativePtr->IniFilename = null;
+            _imGuiIO.NativePtr->IniFilename = null;
         }
 
         // Now set the ini file path if it's been specified.
         if (iniFilePath != null)
         {
-            ImGui.GetIO().SetIniFilePath(iniFilePath);
+            _imGuiIO.SetIniFilePath(iniFilePath);
         }
 
         // Setup graphics
