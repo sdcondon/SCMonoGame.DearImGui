@@ -25,6 +25,7 @@ public sealed class ImGuiRenderer : IDisposable
     private readonly Game _game;
     private readonly nint _imGuiContext;
     private readonly ImGuiIOPtr _imGuiIO;
+    private readonly nint _iniFilePathPtr;
 
     // Graphics
     private readonly GraphicsDevice _graphicsDevice;
@@ -58,17 +59,11 @@ public sealed class ImGuiRenderer : IDisposable
         ImGui.SetCurrentContext(_imGuiContext);
         _imGuiIO = ImGui.GetIO();
 
-        // Nullify ini file immediately, so that we never crash by
-        // attempting to FreeHGlobal the initial value in SetIniFilePath.
+        // Set the ini file path
         unsafe
         {
-            _imGuiIO.NativePtr->IniFilename = null;
-        }
-
-        // Now set the ini file path if it's been specified.
-        if (iniFilePath != null)
-        {
-            _imGuiIO.SetIniFilePath(iniFilePath);
+            _iniFilePathPtr = Marshal.StringToHGlobalAnsi(iniFilePath);
+            _imGuiIO.NativePtr->IniFilename = (byte*)_iniFilePathPtr;
         }
 
         // Setup graphics
@@ -258,6 +253,19 @@ public sealed class ImGuiRenderer : IDisposable
         foreach (var texture in _texturesById.Values)
         {
             texture?.Dispose();
+        }
+
+        // TODO-ROBUSTNESS: stuff below should go in finalizer too.
+        // proper dispose pattern?
+
+        // If ini filename is what we set, (should be unless some manual
+        // shenanigans have occured), then free it.
+        unsafe
+        {
+            if (_iniFilePathPtr == (nint)ImGui.GetIO().NativePtr->IniFilename && _iniFilePathPtr != 0)
+            {
+                Marshal.FreeHGlobal(_iniFilePathPtr);
+            }
         }
 
         ImGui.DestroyContext(_imGuiContext);
