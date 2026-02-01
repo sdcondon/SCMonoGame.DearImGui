@@ -57,6 +57,12 @@ public sealed class ImGuiRenderer : IDisposable
         ImGui.SetCurrentContext(_imGuiContext);
         _imGuiIO = ImGui.GetIO();
 
+        // Unset ini file - default to no UI state persistence
+        unsafe
+        {
+            _imGuiIO.NativePtr->IniFilename = null;
+        }
+
         // Setup graphics
         _graphicsDevice = game.GraphicsDevice;
         _rasterizerState = new()

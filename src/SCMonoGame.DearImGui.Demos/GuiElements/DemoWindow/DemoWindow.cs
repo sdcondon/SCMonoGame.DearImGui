@@ -27,8 +27,8 @@ class DemoWindow(Game owner)
 
     public void Update()
     {
-        SetNextWindowPos(new(450, 20), ImGuiCond.FirstUseEver);
-        SetNextWindowSize(new(550, 680), ImGuiCond.FirstUseEver);
+        SetNextWindowPos(GetMainViewport().Size / 2, ImGuiCond.Appearing, new(0.5f, 0.5f));
+        SetNextWindowSize(new(550, 680), ImGuiCond.Appearing);
 
         var exitApp = false;
 
