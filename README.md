@@ -16,6 +16,7 @@ Changes from MonoGame demo proj in ImGuiNET:
   * Key up/down event code rewritten, because enumerating a fairly large enumeration in each update is slightly 
     insane, when instead we can just use MonoGame's GetPressedKeys stuff - which does bitwise operations to look
     for pressed keys.
+  * Slightly richer functionality around font and style management - to allow for easily scaling the GUI.
 * Extensive demos. Started by rewriting those found 
   [here](https://github.com/tsMezotic/MonoGame.ImGuiNet/blob/main/Monogame.ImGuiNetSamples/Game1.cs) (themselves ported from
   the native examples) for better encapsulation and general code cleanliness, and added a several more - some others ported from
