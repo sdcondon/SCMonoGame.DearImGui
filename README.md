@@ -15,8 +15,10 @@ Changes from MonoGame demo proj in ImGuiNET:
     pipeline (which in ImGui's case doesn't happen until you retrieve the draw data and deal with it appropriately).
   * Key up/down event code rewritten, because enumerating a fairly large enumeration in each update is slightly 
     insane, when instead we can just use MonoGame's GetPressedKeys stuff - which does bitwise operations to look
-    for pressed keys.
-  * Slightly richer functionality around font and style management - to allow for easily scaling the GUI.
+    for pressed keys. Note the benchmarks proj in the solution - which proves that my way is significantly faster.
+  * Richer functionality around font and style management - to allow for easily scaling the GUI. Font atlas rebuild
+    method replaced with a method for storing a reference style for scaling, a method for registering a font, and a method
+    for applying a particular scale to the GUI and fonts.
 * Extensive demos. Started by rewriting those found 
   [here](https://github.com/tsMezotic/MonoGame.ImGuiNet/blob/main/Monogame.ImGuiNetSamples/Game1.cs) (themselves ported from
   the native examples) for better encapsulation and general code cleanliness, and added a several more - some others ported from
