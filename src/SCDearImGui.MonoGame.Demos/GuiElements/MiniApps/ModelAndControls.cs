@@ -25,7 +25,6 @@ class ModelAndControls(GraphicsDevice graphicsDevice, ContentManager contentMana
                 effect.TextureEnabled = false;
                 effect.EnableDefaultLighting();
                 effect.View = Matrix.CreateLookAt(new(0, 0, 4), Vector3.Zero, Vector3.UnitY);
-                effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), graphicsDevice.Viewport.AspectRatio, 0.1f, 100.0f);
             }
         }
     }
@@ -98,6 +97,7 @@ class ModelAndControls(GraphicsDevice graphicsDevice, ContentManager contentMana
             foreach (BasicEffect effect in mesh.Effects.Cast<BasicEffect>())
             {
                 effect.World = modelWorldTransform;
+                effect.Projection = Matrix.CreatePerspectiveFieldOfView(MathHelper.ToRadians(45), graphicsDevice.Viewport.AspectRatio, 0.1f, 100.0f);
             }
 
             mesh.Draw();

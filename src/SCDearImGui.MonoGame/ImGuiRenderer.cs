@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using System.Diagnostics;
 using System.Runtime.InteropServices;
 
 namespace SCDearImGui.MonoGame;
@@ -12,6 +13,7 @@ namespace SCDearImGui.MonoGame;
 public sealed class ImGuiRenderer : IDisposable
 {
     private const float MOUSE_WHEEL_DELTA = 120;
+    private static readonly string TraceCategory = typeof(ImGuiRenderer).FullName!;
 
     private static readonly int ImDrawVertexStride = Marshal.SizeOf<ImDrawVert>();
 
@@ -273,6 +275,8 @@ public sealed class ImGuiRenderer : IDisposable
         // Scale all sizes in the style
         ImGui.GetStyle().ScaleAllSizes(scale);
 
+        var fontReloadStopwatch = Stopwatch.StartNew();
+
         // Replace fonts to atlas
         // todo-robustness: clobbers all fonts added directly rather than through registerfont. check for this and throw?
         _imGuiIO.Fonts.Clear();
@@ -302,6 +306,8 @@ public sealed class ImGuiRenderer : IDisposable
         // ID in its commands to render text: 
         _fontAtlasTextureId = RegisterTexture(atlasTexture);
         _imGuiIO.Fonts.SetTexID(_fontAtlasTextureId.Value);
+
+        Trace.Write($"{fontRegistrations.Count} fonts loaded in {fontReloadStopwatch.ElapsedMilliseconds}ms.", TraceCategory);
     }
 
     public void Dispose()
