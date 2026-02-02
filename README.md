@@ -1,4 +1,4 @@
-# SCMonoGame.DearImGui
+# SCDearImGui.MonoGame
 
 Just my adaptation of the MonoGame ImGui renderer and examples found in the [ImGuiNET](https://github.com/ImGuiNET/ImGui.NET) monogame demo project.
 Mostly for personal use, but making it public because others might find some value here - especially in the extensive demo project.
