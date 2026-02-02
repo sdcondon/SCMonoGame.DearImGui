@@ -10,7 +10,7 @@ namespace SCDearImGui.MonoGame.Demos.GuiElements.MiniApps;
 
 class DisplaySettingsWindow
 {
-    private static readonly TimeSpan UiScaleDebounceDuration = TimeSpan.FromSeconds(1.5);
+    private static readonly TimeSpan UiScaleDebounceDuration = TimeSpan.FromSeconds(0.5);
 
     public bool IsOpen;
 
