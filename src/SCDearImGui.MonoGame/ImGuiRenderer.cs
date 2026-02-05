@@ -35,6 +35,8 @@ public sealed class ImGuiRenderer : IDisposable
     private readonly BasicEffect _effect;
     private readonly Dictionary<nint, Texture2D> _texturesById;
 
+    private readonly List<FontRegistration> fontRegistrations = [];
+
     private byte[] _vertexData = [];
     private VertexBuffer _vertexBuffer;
     private byte[] _indexData = [];
@@ -42,7 +44,6 @@ public sealed class ImGuiRenderer : IDisposable
 
     private ImGuiStyle referenceStyle;
     private float currentUiScale = 0;
-    private List<FontRegistration> fontRegistrations = [];
     private nint? _fontAtlasTextureId;
 
     private nint _nextTextureId;
