@@ -41,6 +41,7 @@ public sealed class ImGuiRenderer : IDisposable
     private IndexBuffer _indexBuffer;
 
     private ImGuiStyle referenceStyle;
+    private float currentUiScale = 0;
     private List<FontRegistration> fontRegistrations = [];
     private nint? _fontAtlasTextureId;
 
@@ -112,6 +113,23 @@ public sealed class ImGuiRenderer : IDisposable
     ~ImGuiRenderer()
     {
         ImGui.DestroyContext(_imGuiContext);
+    }
+
+    /// <summary>
+    /// Gets the scale that was provided on the last invocation of <see cref="ApplyStyleAndFonts"/>.
+    /// Throws if it has not yet been invoked.
+    /// </summary>
+    public float CurrentUiScale
+    {
+        get
+        {
+            if (currentUiScale == 0)
+            {
+                throw new InvalidOperationException("Cannot retrieve UI scale - it has not yet been set.");
+            }
+
+            return currentUiScale;
+        }
     }
 
     /// <summary>
@@ -263,6 +281,8 @@ public sealed class ImGuiRenderer : IDisposable
     /// </summary>
     public void ApplyStyleAndFonts(float scale = 1f)
     {
+        ArgumentOutOfRangeException.ThrowIfLessThanOrEqual(scale, 0);
+
         // Might not be needed - if its fine to access the IO struct of a context that isn't active? probably is?
         ImGui.SetCurrentContext(_imGuiContext);
 
@@ -306,6 +326,9 @@ public sealed class ImGuiRenderer : IDisposable
         // ID in its commands to render text: 
         _fontAtlasTextureId = RegisterTexture(atlasTexture);
         _imGuiIO.Fonts.SetTexID(_fontAtlasTextureId.Value);
+
+        // Store scale.
+        currentUiScale = scale;
 
         Trace.Write($"{fontRegistrations.Count} fonts loaded in {fontReloadStopwatch.ElapsedMilliseconds}ms.", TraceCategory);
     }
